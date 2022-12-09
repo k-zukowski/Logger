@@ -1,12 +1,19 @@
+import Enums.Level;
+import Enums.LogTemplateParameters;
+import Enums.TemplateState;
+
 import java.io.*;
-import java.nio.file.Files;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 public class Logger {
 
     private String name;
     private volatile Configuration config;
     private Level level;
-    private String template;
+    private TemplateState template;
     private final String fileName;
     private final String fileExtension;
     private final String fileFullName;
@@ -23,52 +30,99 @@ public class Logger {
         this.fileName = "log";
         this.fileExtension = "txt";
         this.fileFullName = String.format("%s.%s",fileName,fileExtension);
+        this.template = TemplateState.DETAILED;
+    }
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
     }
 
     public void off(String message) {
-        //take into consideration template
-        //write to file
-        //message = template....//maybe template should be a Class
-        this.level = Level.OFF;
-        configureTemplate();
-        writeToFile(message);
+        setLevel(Level.OFF);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
-
     public void fatal(String message) {
-
+        setLevel(Level.FATAL);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void error(String message) {
-
+        setLevel(Level.ERROR);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void warning(String message) {
-
+        setLevel(Level.WARN);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void info(String message) {
-
+        setLevel(Level.INFO);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void debugging(String message) {
-
+        setLevel(Level.DEBUG);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void trace(String message) {
-
+        setLevel(Level.TRACE);
+        try {
+            writeToFile(templateToMessage(message));
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private void configureTemplate() {
-        switch (level) {
-            case OFF -> template = "off";/// time-thread number-message-sth else useful
-            case FATAL -> template = "fatal";// -||-
-            case ERROR -> template = "error";
-            case WARN -> template = "warning";
-            case INFO -> template = "info";
-            case DEBUG -> template = "debugging";
-            case TRACE -> template = "trace";
+    public void setTemplate(TemplateState template) {
+        this.template = template;
+    }
 
+    public TemplateState getTemplate() {
+        return template;
+    }
+    private String templateToMessage(String message) throws UnknownHostException {
+        StringBuilder write = new StringBuilder();
+        for (LogTemplateParameters param : template.getTemplate()) {
+            switch (param) {
+                case DATE -> write.append(LocalDate.now());
+                case TIME -> write.append(LocalTime.now());
+                case THREADNR -> write.append(Thread.currentThread().getId());
+                case LOGTYPE -> write.append(level.name());
+                case IP -> write.append(InetAddress.getLocalHost());
+                case MESSAGE -> write.append(message);
+            }
+            write.append("\t");
         }
+        return write.toString();
     }
 
     private void writeToFile(String message) {
@@ -83,7 +137,6 @@ public class Logger {
                 e.printStackTrace();
             }
         }
-
         try(FileWriter fw = new FileWriter("log.txt", true);
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw))
@@ -93,6 +146,5 @@ public class Logger {
         } catch (IOException ignore) {
 
         }
-
     }
 }
