@@ -39,67 +39,40 @@ public class Logger {
     public void setLevel(Level level) {
         this.level = level;
     }
-
-    public void off(String message) {
-        setLevel(Level.OFF);
+    private void log (String message, Level level){
+        setLevel(level);
         try {
             writeToFile(templateToMessage(message));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
+
+    public void off(String message) {
+       log(message, Level.OFF);
+    }
     public void fatal(String message) {
-        setLevel(Level.FATAL);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.FATAL);
     }
 
     public void error(String message) {
-        setLevel(Level.ERROR);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.ERROR);
     }
 
     public void warning(String message) {
-        setLevel(Level.WARN);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.WARN);
     }
 
     public void info(String message) {
-        setLevel(Level.INFO);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.INFO);
     }
 
     public void debugging(String message) {
-        setLevel(Level.DEBUG);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.DEBUG);
     }
 
     public void trace(String message) {
-        setLevel(Level.TRACE);
-        try {
-            writeToFile(templateToMessage(message));
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
+        log(message, Level.TRACE);
     }
 
     public void setTemplate(TemplateState template) {
@@ -126,14 +99,12 @@ public class Logger {
     }
 
     private void writeToFile(String message) {
-        //check if the config file already exists
-        //skip file creation
         File f = new File(this.fileFullName);
         if (!f.exists() && !f.isFile()){
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                System.out.println("An error occurred.");
+                System.out.println("An error occurred while creating a new log file.");
                 e.printStackTrace();
             }
         }
